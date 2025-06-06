@@ -4,16 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>电商大促数据分析</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <!-- 图表库 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-    <!-- D3.js和词云库 -->
     <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.1.4/wordcloud.min.js"></script>
-    
     <script>
         tailwind.config = {
             theme: {
@@ -70,6 +65,7 @@
         </div>
     </div>
 
+    <!-- 顶部导航 -->
     <header class="bg-white shadow-sm sticky top-0 z-40">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2">
@@ -87,6 +83,7 @@
     </header>
 
     <main class="container mx-auto px-4 py-8">
+        <!-- 主页面 -->
         <section id="home" class="min-h-[80vh] flex items-center justify-center">
             <div class="text-center max-w-3xl mx-auto">
                 <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-gray-800 mb-6">电商大促数据分析平台</h2>
@@ -115,16 +112,17 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap justify-center gap-4">
-                    <a href="#pie-chart" class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-full transition-colors flex items-center">
+                    <a href="#pie-chart" class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-full transition-colors flex items-center nav-trigger">
                         <i class="fa fa-pie-chart mr-2"></i>查看情感分析
                     </a>
-                    <a href="#word-cloud" class="bg-white hover:bg-gray-50 text-primary border border-primary font-medium py-3 px-8 rounded-full transition-colors flex items-center">
+                    <a href="#word-cloud" class="bg-white hover:bg-gray-50 text-primary border border-primary font-medium py-3 px-8 rounded-full transition-colors flex items-center nav-trigger">
                         <i class="fa fa-tags mr-2"></i>查看词云分析
                     </a>
                 </div>
             </div>
         </section>
 
+        <!-- 饼图页面 -->
         <section id="pie-chart" class="min-h-[80vh] hidden">
             <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
                 <div class="flex justify-between items-center mb-6">
@@ -178,6 +176,7 @@
             </div>
         </section>
 
+        <!-- 词云图页面 -->
         <section id="word-cloud" class="min-h-[80vh] hidden">
             <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
                 <div class="flex justify-between items-center mb-6">
@@ -498,16 +497,27 @@
                 
                 // 初始化导航
                 const navLinks = document.querySelectorAll('.nav-link');
-                navLinks.forEach(link => {
+                const navTriggers = document.querySelectorAll('.nav-trigger');
+                
+                // 合并导航元素
+                const allNavElements = [...navLinks, ...navTriggers];
+                
+                allNavElements.forEach(link => {
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
                         
+                        // 获取目标ID
+                        const targetId = link.getAttribute('href').substring(1);
+                        
                         // 更新导航激活状态
                         navLinks.forEach(l => l.classList.remove('nav-active'));
-                        link.classList.add('nav-active');
+                        navLinks.forEach(l => {
+                            if (l.getAttribute('href') === `#${targetId}`) {
+                                l.classList.add('nav-active');
+                            }
+                        });
                         
                         // 显示对应内容
-                        const targetId = link.getAttribute('href').substring(1);
                         document.querySelectorAll('main > section').forEach(section => {
                             section.classList.add('hidden');
                         });
@@ -639,4 +649,114 @@
                     
                     card.innerHTML = `
                         <div class="mr-4">
-                            <i class="fa ${getSentimentIcon(item.sentiment)} text-3xl" style
+                            <i class="fa ${getSentimentIcon(item.sentiment)} text-3xl" style="color: ${sentimentColors[item.sentiment]}"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800">${item.label}</h4>
+                            <p class="text-2xl font-bold text-gray-800">${item.value}%</p>
+                        </div>
+                    `;
+                    
+                    statsContainer.appendChild(card);
+                });
+            } catch (error) {
+                console.error('渲染情感统计失败:', error);
+            }
+        }
+        
+        // 根据情感类型获取图标
+        function getSentimentIcon(sentimentType) {
+            switch(sentimentType) {
+                case 'positive':
+                    return 'fa-smile-o';
+                case 'negative':
+                    return 'fa-frown-o';
+                case 'neutral':
+                    return 'fa-meh-o';
+                default:
+                    return 'fa-question';
+            }
+        }
+        
+        // 初始化词云图
+        function initWordCloud() {
+            try {
+                const container = document.getElementById('word-cloud-container');
+                const tooltip = document.getElementById('word-tooltip');
+                
+                // 清空容器
+                container.innerHTML = '';
+                
+                // 准备词云数据
+                const data = wordCloudData.map(item => [item.word, item.value]);
+                
+                // 生成随机颜色
+                const colors = d3.scaleOrdinal(d3.quantize(d3.interpolateHcl('#3b82f6', '#10b981'), 10));
+                
+                // 创建词云
+                WordCloud(container, {
+                    list: data,
+                    fontFamily: 'Inter, sans-serif',
+                    fontSizes: [12, 60],
+                    color: (word, weight, fontSize, distance, theta) => colors(word),
+                    backgroundColor: 'transparent',
+                    gridSize: 8,
+                    origin: null,
+                    drawOutOfBound: false,
+                    shrinkToFit: true,
+                    rotateRatio: 0.4,
+                    minRotation: -Math.PI / 2,
+                    maxRotation: Math.PI / 2,
+                    ellipticity: 0.65,
+                    
+                    // 悬停事件
+                    hover: (item, dimension, event) => {
+                        if (item) {
+                            const [word, value] = item;
+                            tooltip.innerHTML = `
+                                <div class="font-medium">${word}</div>
+                                <div class="text-gray-500">频次: ${value}</div>
+                            `;
+                            
+                            // 定位提示框
+                            tooltip.style.left = `${event.clientX + 10}px`;
+                            tooltip.style.top = `${event.clientY + 10}px`;
+                            tooltip.classList.remove('hidden');
+                        }
+                    },
+                    
+                    // 离开事件
+                    leave: () => {
+                        tooltip.classList.add('hidden');
+                    }
+                });
+            } catch (error) {
+                console.error('初始化词云失败:', error);
+                document.getElementById('word-cloud-container').innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-500">
+                        <i class="fa fa-exclamation-triangle mr-2"></i> 词云加载失败，请刷新页面
+                    </div>
+                `;
+            }
+        }
+        
+        // 渲染热门词汇
+        function renderTopWords() {
+            try {
+                const topWordsContainer = document.getElementById('top-words');
+                topWordsContainer.innerHTML = '';
+                
+                // 按频次排序并取前10个
+                const topWords = [...wordCloudData].sort((a, b) => b.value - a.value).slice(0, 10);
+                
+                topWords.forEach((word, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'flex items-center justify-between';
+                    
+                    // 计算进度条宽度
+                    const maxValue = topWords[0].value;
+                    const width = (word.value / maxValue) * 100;
+                    
+                    item.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary text-white text-xs font-medium
