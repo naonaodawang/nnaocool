@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.1.4/wordcloud.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-cloud@1.2.5/build/d3-cloud.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -77,7 +77,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2 h-[500px]">
                     <div class="bg-gray-50 rounded-lg p-4 h-full relative">
-                        <div id="word-cloud-container" class="w-full h-full flex items-center justify-center"></div>
+                        <div id="word-cloud-container" class="w-full h-full"></div>
                         <div id="word-tooltip" class="absolute hidden bg-white shadow-lg p-3 rounded-lg z-10 max-w-xs text-sm"></div>
                     </div>
                 </div>
@@ -170,7 +170,7 @@
     </footer>
 
     <script>
-        // 简化版词云数据（减少词汇量）
+        // 词云数据
         const wordCloudData = [
             { word: '攻略', value: 24 },
             { word: '第二', value: 20 },
@@ -369,46 +369,82 @@
                 // 清空容器
                 container.innerHTML = '';
                 
-                // 准备词云数据（减少词汇量以提高兼容性）
+                // 设置尺寸
+                const width = container.offsetWidth;
+                const height = container.offsetHeight;
+                
+                // 创建SVG
+                const svg = d3.select(container)
+                    .append('svg')
+                    .attr('width', width)
+                    .attr('height', height)
+                    .attr('viewBox', `0 0 ${width} ${height}`)
+                    .attr('preserveAspectRatio', 'xMidYMid meet')
+                    .append('g')
+                    .attr('transform', `translate(${width / 2}, ${height / 2})`);
+                
+                // 准备词云数据
                 const filteredData = wordCloudData
-                    .filter((_, index) => index < 80) // 只保留前80个词
-                    .map(item => [item.word, item.value]);
+                    .filter((_, index) => index < 60) // 只保留前60个词
+                    .map(item => ({
+                        text: item.word,
+                        size: 10 + item.value * 3 // 根据值计算大小
+                    }));
                 
-                // 生成颜色
-                const colors = d3.scaleOrdinal(d3.schemeCategory10);
+                // 定义颜色比例尺
+                const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
                 
-                // 创建词云（简化配置）
-                WordCloud(container, {
-                    list: filteredData,
-                    fontFamily: 'Arial, sans-serif', // 使用通用字体
-                    fontSizes: [14, 50], // 调整字体大小范围
-                    color: (word, weight) => colors(weight),
-                    backgroundColor: 'transparent',
-                    gridSize: 10,
-                    rotateRatio: 0.3,
-                    ellipticity: 0.65,
-                    
-                    // 悬停事件
-                    hover: (item, dimension, event) => {
-                        if (item) {
-                            const [word, value] = item;
+                // 创建词云布局
+                const layout = d3.layout.cloud()
+                    .size([width, height])
+                    .words(filteredData)
+                    .padding(5)
+                    .rotate(() => Math.floor(Math.random() * 2) * 90) // 0或90度旋转
+                    .font('Arial')
+                    .fontSize(d => d.size)
+                    .on('end', draw);
+                
+                // 开始布局计算
+                layout.start();
+                
+                // 绘制词云
+                function draw(words) {
+                    svg.selectAll('text')
+                        .data(words)
+                        .enter()
+                        .append('text')
+                        .style('font-size', d => `${d.size}px`)
+                        .style('font-family', 'Arial, sans-serif')
+                        .style('fill', (d, i) => colorScale(i))
+                        .attr('text-anchor', 'middle')
+                        .attr('transform', d => `translate(${d.x}, ${d.y}) rotate(${d.rotate})`)
+                        .text(d => d.text)
+                        .on('mouseover', (event, d) => {
+                            // 显示提示框
                             tooltip.innerHTML = `
-                                <div class="font-medium">${word}</div>
-                                <div class="text-gray-500">频次: ${value}</div>
+                                <div class="font-medium">${d.text}</div>
+                                <div class="text-gray-500">频次: ${Math.round((d.size - 10) / 3)}</div>
                             `;
                             
                             // 定位提示框
                             tooltip.style.left = `${event.clientX + 10}px`;
                             tooltip.style.top = `${event.clientY + 10}px`;
                             tooltip.classList.remove('hidden');
-                        }
-                    },
-                    
-                    // 离开事件
-                    leave: () => {
-                        tooltip.classList.add('hidden');
-                    }
-                });
+                            
+                            // 高亮效果
+                            d3.select(event.currentTarget)
+                                .style('cursor', 'pointer')
+                                .style('opacity', 0.8);
+                        })
+                        .on('mouseout', (event) => {
+                            // 隐藏提示框
+                            tooltip.classList.add('hidden');
+                            
+                            // 恢复效果
+                            d3.select(event.currentTarget)
+                                .style('opacity', 1);
+                        });
+                }
             } catch (error) {
                 console.error('初始化词云失败:', error);
                 document.getElementById('word-cloud-container').innerHTML = `
