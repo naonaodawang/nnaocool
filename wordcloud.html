@@ -140,67 +140,12 @@
                                 </div>
                                 <span class="ml-3 text-sm font-medium">6</span>
                             </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-200 text-gray-800 text-xs font-medium mr-3">6</span>
-                                    <span>消费</span>
-                                </div>
-                                <div class="w-3/5 bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-primary h-2.5 rounded-full" style="width: 25%"></div>
-                                </div>
-                                <span class="ml-3 text-sm font-medium">6</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-200 text-gray-800 text-xs font-medium mr-3">7</span>
-                                    <span>第三</span>
-                                </div>
-                                <div class="w-3/5 bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-primary h-2.5 rounded-full" style="width: 25%"></div>
-                                </div>
-                                <span class="ml-3 text-sm font-medium">6</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-200 text-gray-800 text-xs font-medium mr-3">8</span>
-                                    <span>京东</span>
-                                </div>
-                                <div class="w-3/5 bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-primary h-2.5 rounded-full" style="width: 25%"></div>
-                                </div>
-                                <span class="ml-3 text-sm font-medium">6</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-200 text-gray-800 text-xs font-medium mr-3">9</span>
-                                    <span>凑单</span>
-                                </div>
-                                <div class="w-3/5 bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-primary h-2.5 rounded-full" style="width: 21%"></div>
-                                </div>
-                                <span class="ml-3 text-sm font-medium">5</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-200 text-gray-800 text-xs font-medium mr-3">10</span>
-                                    <span>优惠</span>
-                                </div>
-                                <div class="w-3/5 bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-primary h-2.5 rounded-full" style="width: 17%"></div>
-                                </div>
-                                <span class="ml-3 text-sm font-medium">4</span>
-                            </div>
                         </div>
                     </div>
                     
                     <div class="bg-gray-50 rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4">分析摘要</h3>
-                        <p class="text-gray-600">从词云分析结果可以看出，"攻略"、"活动"、"时间"、"优惠"等词汇出现频率较高，说明消费者在大促期间最关注活动规则、时间安排以及优惠力度。此外，"京东"、"淘宝"等平台名称，以及"手机"、"家电"等品类词也较为突出，反映出消费者的主要购物平台和关注品类。</p>
+                        <p class="text-gray-600">从词云分析结果可以看出，"攻略"、"活动"、"时间"、"优惠"等词汇出现频率较高，说明消费者在大促期间最关注活动规则、时间安排以及优惠力度。此外，"京东"、"淘宝"等平台名称也较为突出，反映出消费者的主要购物平台。</p>
                     </div>
                     
                     <div class="bg-gray-50 rounded-lg p-6">
@@ -491,6 +436,23 @@
                     // 离开事件
                     leave: () => {
                         tooltip.classList.add('hidden');
+                    },
+                    
+                    // 词云生成完成回调
+                    afterCloud: () => {
+                        // 词云生成成功后添加动画效果
+                        const words = container.querySelectorAll('text');
+                        words.forEach((word, index) => {
+                            word.style.opacity = '0';
+                            word.style.transform = 'translateY(20px)';
+                            word.style.transition = `opacity 0.5s ease ${index * 0.03}s, transform 0.5s ease ${index * 0.03}s`;
+                            
+                            // 触发动画
+                            setTimeout(() => {
+                                word.style.opacity = '1';
+                                word.style.transform = 'translateY(0)';
+                            }, 100);
+                        });
                     }
                 });
             } catch (error) {
