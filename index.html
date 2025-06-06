@@ -1,13 +1,12 @@
-<!-- sentiment.html (情感分析页面) -->
+<!-- index.html (主页) -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>电商大促数据分析 - 情感分析</title>
+    <title>电商大促数据分析 - 首页</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -56,8 +55,8 @@
             </div>
             <nav>
                 <ul class="flex space-x-6">
-                    <li><a href="index.html" class="nav-link py-4 inline-block text-gray-600 hover:text-primary transition-colors">首页</a></li>
-                    <li><a href="sentiment.html" class="nav-link py-4 inline-block text-primary border-b-2 border-primary">情感分析</a></li>
+                    <li><a href="index.html" class="nav-link py-4 inline-block text-primary border-b-2 border-primary">首页</a></li>
+                    <li><a href="sentiment.html" class="nav-link py-4 inline-block text-gray-600 hover:text-primary transition-colors">情感分析</a></li>
                     <li><a href="wordcloud.html" class="nav-link py-4 inline-block text-gray-600 hover:text-primary transition-colors">词云分析</a></li>
                 </ul>
             </nav>
@@ -65,82 +64,39 @@
     </header>
 
     <main class="container mx-auto px-4 py-8">
-        <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                    <i class="fa fa-pie-chart text-primary mr-2"></i>电商大促情感分析
-                </h2>
-                <div class="text-sm text-gray-500">数据更新于: <span>2025-06-06</span></div>
+        <div class="text-center max-w-3xl mx-auto">
+            <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-gray-800 mb-6">电商大促数据分析平台</h2>
+            <p class="text-xl text-gray-600 mb-8">探索消费者情感与热门话题，洞察电商大促趋势</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
+                    <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-pie-chart text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">情感分析</h3>
+                    <p class="text-gray-600">分析消费者对电商大促的情感倾向</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
+                    <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-tags text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">词云分析</h3>
+                    <p class="text-gray-600">展示消费者讨论的热门话题与关键词</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
+                    <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-line-chart text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">趋势洞察</h3>
+                    <p class="text-gray-600">基于数据分析提供商业决策支持</p>
+                </div>
             </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 h-[500px]">
-                    <div class="bg-gray-50 rounded-lg p-4 h-full">
-                        <canvas id="sentiment-chart"></canvas>
-                    </div>
-                </div>
-                
-                <div class="flex flex-col justify-between">
-                    <div class="space-y-6">
-                        <div class="bg-gray-50 rounded-lg p-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">情感分布</h3>
-                            <div class="space-y-4">
-                                <div class="flex items-center p-4 rounded-lg border-l-4 border-neutral" style="background-color: rgba(250, 173, 20, 0.1)">
-                                    <div class="mr-4">
-                                        <i class="fa fa-meh-o text-3xl" style="color: #faad14"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-medium text-gray-800">中性</h4>
-                                        <p class="text-2xl font-bold text-gray-800">44.6%</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex items-center p-4 rounded-lg border-l-4 border-negative" style="background-color: rgba(255, 77, 79, 0.1)">
-                                    <div class="mr-4">
-                                        <i class="fa fa-frown-o text-3xl" style="color: #ff4d4f"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-medium text-gray-800">消极</h4>
-                                        <p class="text-2xl font-bold text-gray-800">27.2%</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex items-center p-4 rounded-lg border-l-4 border-positive" style="background-color: rgba(82, 196, 26, 0.1)">
-                                    <div class="mr-4">
-                                        <i class="fa fa-smile-o text-3xl" style="color: #52c41a"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-medium text-gray-800">积极</h4>
-                                        <p class="text-2xl font-bold text-gray-800">28.3%</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gray-50 rounded-lg p-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">分析摘要</h3>
-                            <p class="text-gray-600">本次电商大促相关讨论中，中性情感占比最高，达到44.6%，表明大部分用户持客观态度。积极情感占28.3%，消极情感占27.2%，两者比例接近，反映出用户对大促活动的评价存在一定分歧。</p>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gray-50 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">数据说明</h3>
-                        <ul class="text-gray-600 space-y-2">
-                            <li class="flex items-start">
-                                <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
-                                <span>数据来源：社交媒体平台公开讨论</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
-                                <span>分析方法：基于自然语言处理的情感分析模型</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
-                                <span>样本量：超过10,000条相关评论</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="sentiment.html" class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-full transition-colors flex items-center">
+                    <i class="fa fa-pie-chart mr-2"></i>查看情感分析
+                </a>
+                <a href="wordcloud.html" class="bg-white hover:bg-gray-50 text-primary border border-primary font-medium py-3 px-8 rounded-full transition-colors flex items-center">
+                    <i class="fa fa-tags mr-2"></i>查看词云分析
+                </a>
             </div>
         </div>
     </main>
@@ -169,83 +125,5 @@
             </div>
         </div>
     </footer>
-
-    <script>
-        // 初始化饼图
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                const ctx = document.getElementById('sentiment-chart').getContext('2d');
-                
-                // 数据
-                const data = {
-                    labels: ['中性', '消极', '积极'],
-                    datasets: [{
-                        data: [44.6, 27.2, 28.3],
-                        backgroundColor: [
-                            '#faad14',  // 中性
-                            '#ff4d4f',  // 消极
-                            '#52c41a'   // 积极
-                        ],
-                        borderColor: '#ffffff',
-                        borderWidth: 2,
-                        hoverOffset: 15
-                    }]
-                };
-                
-                // 创建图表
-                new Chart(ctx, {
-                    type: 'pie',
-                    data: data,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 20,
-                                    font: {
-                                        size: 14
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                                titleFont: {
-                                    size: 16
-                                },
-                                bodyFont: {
-                                    size: 14
-                                },
-                                padding: 12,
-                                cornerRadius: 8,
-                                displayColors: true,
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        return `${label}: ${value}%`;
-                                    }
-                                }
-                            }
-                        },
-                        animation: {
-                            animateScale: true,
-                            animateRotate: true,
-                            duration: 2000,
-                            easing: 'easeOutQuart'
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('初始化饼图失败:', error);
-                document.getElementById('sentiment-chart').parentElement.innerHTML = `
-                    <div class="flex items-center justify-center h-full text-gray-500">
-                        <i class="fa fa-exclamation-triangle mr-2"></i> 图表加载失败，请刷新页面
-                    </div>
-                `;
-            }
-        });
-    </script>
 </body>
 </html>
