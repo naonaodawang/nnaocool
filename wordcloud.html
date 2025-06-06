@@ -7,8 +7,6 @@
     <title>电商大促数据分析 - 词云分析</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/d3-cloud@1.2.5/build/d3-cloud.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -77,8 +75,15 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2 h-[500px]">
                     <div class="bg-gray-50 rounded-lg p-4 h-full relative">
-                        <div id="word-cloud-container" class="w-full h-full"></div>
-                        <div id="word-tooltip" class="absolute hidden bg-white shadow-lg p-3 rounded-lg z-10 max-w-xs text-sm"></div>
+                        <!-- 静态词云图 -->
+                        <img 
+                            src="wordcloud.png" 
+                            alt="电商大促词云分析" 
+                            class="w-full h-full object-contain"
+                        >
+                        <div class="absolute bottom-4 left-4 text-sm text-gray-500">
+                            <i class="fa fa-info-circle mr-1"></i> 点击图片可查看高清版本
+                        </div>
                     </div>
                 </div>
                 
@@ -135,7 +140,7 @@
                             </li>
                             <li class="flex items-start">
                                 <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
-                                <span>悬停在词汇上可查看具体频次</span>
+                                <span>数据来源：社交媒体平台公开讨论</span>
                             </li>
                         </ul>
                     </div>
@@ -168,292 +173,5 @@
             </div>
         </div>
     </footer>
-
-    <script>
-        // 词云数据
-        const wordCloudData = [
-            { word: '攻略', value: 24 },
-            { word: '第二', value: 20 },
-            { word: '活动', value: 13 },
-            { word: '时间', value: 8 },
-            { word: '汇总', value: 6 },
-            { word: '消费', value: 6 },
-            { word: '第三', value: 6 },
-            { word: '京东', value: 6 },
-            { word: '凑单', value: 5 },
-            { word: '优惠', value: 4 },
-            { word: '淘宝', value: 4 },
-            { word: '到底', value: 4 },
-            { word: '玩法', value: 4 },
-            { word: '使用', value: 4 },
-            { word: '便宜', value: 4 },
-            { word: '考研', value: 4 },
-            { word: '清单', value: 3 },
-            { word: '购物', value: 3 },
-            { word: '详细', value: 3 },
-            { word: '什么', value: 3 },
-            { word: '完整', value: 3 },
-            { word: '更新', value: 3 },
-            { word: '力度', value: 3 },
-            { word: '大促', value: 3 },
-            { word: '一图', value: 3 },
-            { word: '预售', value: 3 },
-            { word: '手机', value: 3 },
-            { word: '今年', value: 3 },
-            { word: '分享', value: 3 },
-            { word: '普通人', value: 2 },
-            { word: '揭秘', value: 2 },
-            { word: '女大', value: 2 },
-            { word: '买手机', value: 2 },
-            { word: '小米', value: 2 },
-            { word: '立减', value: 2 },
-            { word: '一共', value: 2 },
-            { word: '开始', value: 2 },
-            { word: '斐乐', value: 2 },
-            { word: '价位', value: 2 },
-            { word: '机制', value: 2 },
-            { word: '确定', value: 2 },
-            { word: '狂欢', value: 2 },
-            { word: '真正', value: 2 },
-            { word: '内附', value: 2 },
-            { word: '值得', value: 2 },
-            { word: '国补', value: 2 },
-            { word: '全攻略', value: 2 },
-            { word: '超全', value: 2 },
-            { word: '作业', value: 2 },
-            { word: '大学生', value: 2 },
-            { word: '淘汰', value: 1 },
-            { word: '碰上', value: 1 },
-            { word: 'pro', value: 1 },
-            { word: '幸福', value: 1 },
-            { word: '求拉', value: 1 },
-            { word: '浪费', value: 1 },
-            { word: '直接', value: 1 },
-            { word: '羊毛', value: 1 },
-            { word: '买齐', value: 1 },
-            { word: '东西', value: 1 },
-            { word: '统统', value: 1 },
-            { word: '重要', value: 1 },
-            { word: '购课', value: 1 },
-            { word: '公开', value: 1 },
-            { word: '自用', value: 1 },
-            { word: '时间段', value: 1 },
-            { word: '上岸', value: 1 },
-            { word: '空前', value: 1 },
-            { word: '家电', value: 1 },
-            { word: '规则', value: 1 },
-            { word: '不停', value: 1 },
-            { word: '店员', value: 1 },
-            { word: '极限', value: 1 },
-            { word: '三轮', value: 1 },
-            { word: '锐评', value: 1 },
-            { word: '至本', value: 1 },
-            { word: '狂欢节', value: 1 },
-            { word: '狂热', value: 1 },
-            { word: '来袭', value: 1 },
-            { word: '李佳琦', value: 1 },
-            { word: '维密', value: 1 },
-            { word: '睡衣', value: 1 },
-            { word: '左右', value: 1 },
-            { word: '必须', value: 1 },
-            { word: '购入', value: 1 },
-            { word: 'NB', value: 1 },
-            { word: '系列', value: 1 },
-            { word: '细说', value: 1 },
-            { word: '意义', value: 1 },
-            { word: '开启', value: 1 },
-            { word: '隐藏', value: 1 },
-            { word: '现在', value: 1 },
-            { word: '消息', value: 1 },
-            { word: '干货', value: 1 },
-            { word: '今晚', value: 1 },
-            { word: '时候', value: 1 },
-            { word: '解答', value: 1 },
-            { word: '五个', value: 1 },
-            { word: '问题', value: 1 },
-            { word: '看看', value: 1 },
-            { word: '今天', value: 1 },
-            { word: '极致', value: 1 },
-            { word: '已出', value: 1 },
-            { word: '荣耀', value: 1 },
-            { word: 'magic', value: 1 },
-            { word: '最低价', value: 1 },
-            { word: '真的', value: 1 },
-            { word: '有点', value: 1 },
-            { word: '超出', value: 1 },
-            { word: '预期', value: 1 },
-            { word: '完后', value: 1 },
-            { word: '购物车', value: 1 },
-            { word: '三波', value: 1 },
-            { word: '指南', value: 1 },
-            { word: '前面', value: 1 },
-            { word: '没买', value: 1 },
-            { word: '好价', value: 1 },
-            { word: '一定', value: 1 },
-            { word: '抓住', value: 1 },
-            { word: '已经', value: 1 },
-            { word: '一览表', value: 1 },
-            { word: '这篇', value: 1 },
-            { word: '告诉', value: 1 },
-            { word: '哪一天', value: 1 },
-            { word: '贫穷', value: 1 },
-            { word: '女大版', value: 1 },
-            { word: '适合', value: 1 },
-            { word: '最佳', value: 1 },
-            { word: '购机', value: 1 },
-            { word: '波看', value: 1 },
-            { word: '更大', value: 1 },
-            { word: '对比', value: 1 },
-            { word: '推荐', value: 1 },
-            { word: '终版', value: 1 },
-            { word: '还是', value: 1 },
-            { word: '哪些', value: 1 },
-            { word: '千万别', value: 1 },
-            { word: '分析', value: 1 },
-            { word: '高数', value: 1 },
-            { word: '大手笔', value: 1 },
-            { word: '天猫', value: 1 },
-            { word: '超市', value: 1 },
-            { word: '简单', value: 1 },
-            { word: '低价', value: 1 },
-            { word: '怎么', value: 1 },
-            { word: '买不贵', value: 1 },
-            { word: '我滴个', value: 1 },
-            { word: '节点', value: 1 },
-            { word: '真香', value: 1 },
-            { word: '研究生', value: 1 },
-            { word: '之买', value: 1 },
-            { word: '整理', value: 1 },
-            { word: '宝们', value: 1 },
-            { word: '看过', value: 1 },
-            { word: '猫爪', value: 1 },
-            { word: '最全', value: 1 },
-            { word: '版本', value: 1 },
-            { word: '技巧', value: 1 },
-            { word: '冷静', value: 1 },
-            { word: '那一波', value: 1 },
-            { word: '波茵曼', value: 1 },
-            { word: '服饰', value: 1 },
-            { word: '教程', value: 1 },
-            { word: '长期', value: 1 },
-            { word: '主义', value: 1 },
-            { word: '提个醒', value: 1 },
-            { word: '必买', value: 1 },
-            { word: '连夜', value: 1 },
-            { word: '方法', value: 1 },
-            { word: '尾款', value: 1 },
-            { word: '买好', value: 1 },
-            { word: '满意', value: 1 },
-            { word: '确实', value: 1 },
-            { word: '节奏', value: 1 },
-            { word: '三步', value: 1 },
-            { word: '省下', value: 1 },
-            { word: '百元', value: 1 },
-            { word: '几种', value: 1 },
-            { word: '不要', value: 1 },
-            { word: '等等', value: 1 },
-            { word: 'iphone', value: 1 },
-            { word: '超大', value: 1 },
-            { word: '大全', value: 1 },
-            { word: '利用', value: 1 },
-            { word: '赶紧', value: 1 },
-            { word: '需要', value: 1 }
-        ];
-
-        // 初始化词云
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                const container = document.getElementById('word-cloud-container');
-                const tooltip = document.getElementById('word-tooltip');
-                
-                // 清空容器
-                container.innerHTML = '';
-                
-                // 设置尺寸
-                const width = container.offsetWidth;
-                const height = container.offsetHeight;
-                
-                // 创建SVG
-                const svg = d3.select(container)
-                    .append('svg')
-                    .attr('width', width)
-                    .attr('height', height)
-                    .attr('viewBox', `0 0 ${width} ${height}`)
-                    .attr('preserveAspectRatio', 'xMidYMid meet')
-                    .append('g')
-                    .attr('transform', `translate(${width / 2}, ${height / 2})`);
-                
-                // 准备词云数据
-                const filteredData = wordCloudData
-                    .filter((_, index) => index < 60) // 只保留前60个词
-                    .map(item => ({
-                        text: item.word,
-                        size: 10 + item.value * 3 // 根据值计算大小
-                    }));
-                
-                // 定义颜色比例尺
-                const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-                
-                // 创建词云布局
-                const layout = d3.layout.cloud()
-                    .size([width, height])
-                    .words(filteredData)
-                    .padding(5)
-                    .rotate(() => Math.floor(Math.random() * 2) * 90) // 0或90度旋转
-                    .font('Arial')
-                    .fontSize(d => d.size)
-                    .on('end', draw);
-                
-                // 开始布局计算
-                layout.start();
-                
-                // 绘制词云
-                function draw(words) {
-                    svg.selectAll('text')
-                        .data(words)
-                        .enter()
-                        .append('text')
-                        .style('font-size', d => `${d.size}px`)
-                        .style('font-family', 'Arial, sans-serif')
-                        .style('fill', (d, i) => colorScale(i))
-                        .attr('text-anchor', 'middle')
-                        .attr('transform', d => `translate(${d.x}, ${d.y}) rotate(${d.rotate})`)
-                        .text(d => d.text)
-                        .on('mouseover', (event, d) => {
-                            // 显示提示框
-                            tooltip.innerHTML = `
-                                <div class="font-medium">${d.text}</div>
-                                <div class="text-gray-500">频次: ${Math.round((d.size - 10) / 3)}</div>
-                            `;
-                            
-                            // 定位提示框
-                            tooltip.style.left = `${event.clientX + 10}px`;
-                            tooltip.style.top = `${event.clientY + 10}px`;
-                            tooltip.classList.remove('hidden');
-                            
-                            // 高亮效果
-                            d3.select(event.currentTarget)
-                                .style('cursor', 'pointer')
-                                .style('opacity', 0.8);
-                        })
-                        .on('mouseout', (event) => {
-                            // 隐藏提示框
-                            tooltip.classList.add('hidden');
-                            
-                            // 恢复效果
-                            d3.select(event.currentTarget)
-                                .style('opacity', 1);
-                        });
-                }
-            } catch (error) {
-                console.error('初始化词云失败:', error);
-                document.getElementById('word-cloud-container').innerHTML = `
-                    <div class="flex items-center justify-center h-full text-gray-500">
-                        <i class="fa fa-exclamation-triangle mr-2"></i> 词云加载失败，请刷新页面
-                    </div>
-                `;
-            }
-        });
-    </script>
 </body>
 </html>
