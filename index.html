@@ -1,14 +1,13 @@
+<!-- sentiment.html (情感分析页面) -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>电商大促数据分析</title>
+    <title>电商大促数据分析 - 情感分析</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.1.4/wordcloud.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -44,27 +43,10 @@
             .nav-active {
                 @apply text-primary border-b-2 border-primary;
             }
-            .loading-spinner {
-                border-top-color: #3b82f6;
-                animation: spinner 0.6s linear infinite;
-            }
-            @keyframes spinner {
-                to {
-                    transform: rotate(360deg);
-                }
-            }
         }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <!-- 加载指示器 -->
-    <div id="loading-overlay" class="fixed inset-0 bg-white flex items-center justify-center z-50">
-        <div class="text-center">
-            <div class="w-12 h-12 rounded-full border-4 border-gray-200 loading-spinner mx-auto mb-4"></div>
-            <p class="text-gray-600">正在加载数据可视化...</p>
-        </div>
-    </div>
-
     <!-- 顶部导航 -->
     <header class="bg-white shadow-sm sticky top-0 z-40">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -74,160 +56,93 @@
             </div>
             <nav>
                 <ul class="flex space-x-6">
-                    <li><a href="#home" class="nav-link py-4 inline-block text-gray-600 hover:text-primary transition-colors">首页</a></li>
-                    <li><a href="#pie-chart" class="nav-link py-4 inline-block text-gray-600 hover:text-primary transition-colors">情感分析</a></li>
-                    <li><a href="#word-cloud" class="nav-link py-4 inline-block text-gray-600 hover:text-primary transition-colors">词云分析</a></li>
+                    <li><a href="index.html" class="nav-link py-4 inline-block text-gray-600 hover:text-primary transition-colors">首页</a></li>
+                    <li><a href="sentiment.html" class="nav-link py-4 inline-block text-primary border-b-2 border-primary">情感分析</a></li>
+                    <li><a href="wordcloud.html" class="nav-link py-4 inline-block text-gray-600 hover:text-primary transition-colors">词云分析</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
     <main class="container mx-auto px-4 py-8">
-        <!-- 主页面 -->
-        <section id="home" class="min-h-[80vh] flex items-center justify-center">
-            <div class="text-center max-w-3xl mx-auto">
-                <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-gray-800 mb-6">电商大促数据分析平台</h2>
-                <p class="text-xl text-gray-600 mb-8">探索消费者情感与热门话题，洞察电商大促趋势</p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                    <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
-                        <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                            <i class="fa fa-pie-chart text-primary text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">情感分析</h3>
-                        <p class="text-gray-600">分析消费者对电商大促的情感倾向</p>
-                    </div>
-                    <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
-                        <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                            <i class="fa fa-tags text-primary text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">词云分析</h3>
-                        <p class="text-gray-600">展示消费者讨论的热门话题与关键词</p>
-                    </div>
-                    <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
-                        <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                            <i class="fa fa-line-chart text-primary text-xl"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">趋势洞察</h3>
-                        <p class="text-gray-600">基于数据分析提供商业决策支持</p>
-                    </div>
-                </div>
-                <div class="flex flex-wrap justify-center gap-4">
-                    <a href="#pie-chart" class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-full transition-colors flex items-center nav-trigger">
-                        <i class="fa fa-pie-chart mr-2"></i>查看情感分析
-                    </a>
-                    <a href="#word-cloud" class="bg-white hover:bg-gray-50 text-primary border border-primary font-medium py-3 px-8 rounded-full transition-colors flex items-center nav-trigger">
-                        <i class="fa fa-tags mr-2"></i>查看词云分析
-                    </a>
-                </div>
+        <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                    <i class="fa fa-pie-chart text-primary mr-2"></i>电商大促情感分析
+                </h2>
+                <div class="text-sm text-gray-500">数据更新于: <span>2025-06-06</span></div>
             </div>
-        </section>
-
-        <!-- 饼图页面 -->
-        <section id="pie-chart" class="min-h-[80vh] hidden">
-            <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                        <i class="fa fa-pie-chart text-primary mr-2"></i>电商大促情感分析
-                    </h2>
-                    <div class="text-sm text-gray-500">数据更新于: <span id="update-date">2025-06-06</span></div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 h-[500px]">
+                    <div class="bg-gray-50 rounded-lg p-4 h-full">
+                        <canvas id="sentiment-chart"></canvas>
+                    </div>
                 </div>
                 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-2 h-[500px]">
-                        <div class="bg-gray-50 rounded-lg p-4 h-full">
-                            <canvas id="sentiment-chart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div class="flex flex-col justify-between">
-                        <div class="space-y-6">
-                            <div class="bg-gray-50 rounded-lg p-6">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-4">情感分布</h3>
-                                <div class="space-y-4" id="sentiment-stats">
-                                    <!-- 数据将通过JS动态填充 -->
+                <div class="flex flex-col justify-between">
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">情感分布</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center p-4 rounded-lg border-l-4 border-neutral" style="background-color: rgba(250, 173, 20, 0.1)">
+                                    <div class="mr-4">
+                                        <i class="fa fa-meh-o text-3xl" style="color: #faad14"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">中性</h4>
+                                        <p class="text-2xl font-bold text-gray-800">44.6%</p>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div class="bg-gray-50 rounded-lg p-6">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-4">分析摘要</h3>
-                                <p class="text-gray-600">本次电商大促相关讨论中，中性情感占比最高，达到44.6%，表明大部分用户持客观态度。积极情感占28.3%，消极情感占27.2%，两者比例接近，反映出用户对大促活动的评价存在一定分歧。</p>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gray-50 rounded-lg p-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">数据说明</h3>
-                            <ul class="text-gray-600 space-y-2">
-                                <li class="flex items-start">
-                                    <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
-                                    <span>数据来源：社交媒体平台公开讨论</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
-                                    <span>分析方法：基于自然语言处理的情感分析模型</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
-                                    <span>样本量：超过10,000条相关评论</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 词云图页面 -->
-        <section id="word-cloud" class="min-h-[80vh] hidden">
-            <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                        <i class="fa fa-tags text-primary mr-2"></i>电商大促词云分析
-                    </h2>
-                    <div class="text-sm text-gray-500">数据更新于: <span id="update-date-word">2025-06-06</span></div>
-                </div>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-2 h-[500px]">
-                        <div class="bg-gray-50 rounded-lg p-4 h-full relative">
-                            <div id="word-cloud-container" class="w-full h-full flex items-center justify-center"></div>
-                            <div id="word-tooltip" class="absolute hidden bg-white shadow-lg p-3 rounded-lg z-10 max-w-xs text-sm"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex flex-col justify-between">
-                        <div class="bg-gray-50 rounded-lg p-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">热门话题</h3>
-                            <div class="space-y-3" id="top-words">
-                                <!-- 数据将通过JS动态填充 -->
+                                
+                                <div class="flex items-center p-4 rounded-lg border-l-4 border-negative" style="background-color: rgba(255, 77, 79, 0.1)">
+                                    <div class="mr-4">
+                                        <i class="fa fa-frown-o text-3xl" style="color: #ff4d4f"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">消极</h4>
+                                        <p class="text-2xl font-bold text-gray-800">27.2%</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center p-4 rounded-lg border-l-4 border-positive" style="background-color: rgba(82, 196, 26, 0.1)">
+                                    <div class="mr-4">
+                                        <i class="fa fa-smile-o text-3xl" style="color: #52c41a"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">积极</h4>
+                                        <p class="text-2xl font-bold text-gray-800">28.3%</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
                         <div class="bg-gray-50 rounded-lg p-6">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4">分析摘要</h3>
-                            <p class="text-gray-600">从词云分析结果可以看出，"攻略"、"活动"、"时间"、"优惠"等词汇出现频率较高，说明消费者在大促期间最关注活动规则、时间安排以及优惠力度。此外，"京东"、"淘宝"等平台名称，以及"手机"、"家电"等品类词也较为突出，反映出消费者的主要购物平台和关注品类。</p>
+                            <p class="text-gray-600">本次电商大促相关讨论中，中性情感占比最高，达到44.6%，表明大部分用户持客观态度。积极情感占28.3%，消极情感占27.2%，两者比例接近，反映出用户对大促活动的评价存在一定分歧。</p>
                         </div>
-                        
-                        <div class="bg-gray-50 rounded-lg p-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">词云说明</h3>
-                            <ul class="text-gray-600 space-y-2">
-                                <li class="flex items-start">
-                                    <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
-                                    <span>字体大小反映词汇出现频率</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
-                                    <span>悬停在词汇上可查看具体频次</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
-                                    <span>数据来源：社交媒体平台公开讨论</span>
-                                </li>
-                            </ul>
-                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">数据说明</h3>
+                        <ul class="text-gray-600 space-y-2">
+                            <li class="flex items-start">
+                                <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
+                                <span>数据来源：社交媒体平台公开讨论</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
+                                <span>分析方法：基于自然语言处理的情感分析模型</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
+                                <span>样本量：超过10,000条相关评论</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
     </main>
 
     <footer class="bg-gray-800 text-white py-8 mt-12">
@@ -256,335 +171,31 @@
     </footer>
 
     <script>
-        // 饼图数据
-        const pieChartData = [
-            { sentiment: 'neutral', value: 44.6, label: '中性' },
-            { sentiment: 'negative', value: 27.2, label: '消极' },
-            { sentiment: 'positive', value: 28.3, label: '积极' }
-        ];
-        
-        // 词云数据
-        const wordCloudData = [
-            { word: '攻略', value: 24 },
-            { word: '第二', value: 20 },
-            { word: '活动', value: 13 },
-            { word: '时间', value: 8 },
-            { word: '汇总', value: 6 },
-            { word: '消费', value: 6 },
-            { word: '第三', value: 6 },
-            { word: '京东', value: 6 },
-            { word: '凑单', value: 5 },
-            { word: '优惠', value: 4 },
-            { word: '淘宝', value: 4 },
-            { word: '到底', value: 4 },
-            { word: '玩法', value: 4 },
-            { word: '使用', value: 4 },
-            { word: '便宜', value: 4 },
-            { word: '考研', value: 4 },
-            { word: '清单', value: 3 },
-            { word: '购物', value: 3 },
-            { word: '详细', value: 3 },
-            { word: '什么', value: 3 },
-            { word: '完整', value: 3 },
-            { word: '更新', value: 3 },
-            { word: '力度', value: 3 },
-            { word: '大促', value: 3 },
-            { word: '一图', value: 3 },
-            { word: '预售', value: 3 },
-            { word: '手机', value: 3 },
-            { word: '今年', value: 3 },
-            { word: '分享', value: 3 },
-            { word: '普通人', value: 2 },
-            { word: '揭秘', value: 2 },
-            { word: '女大', value: 2 },
-            { word: '买手机', value: 2 },
-            { word: '小米', value: 2 },
-            { word: '立减', value: 2 },
-            { word: '一共', value: 2 },
-            { word: '开始', value: 2 },
-            { word: '斐乐', value: 2 },
-            { word: '价位', value: 2 },
-            { word: '机制', value: 2 },
-            { word: '确定', value: 2 },
-            { word: '狂欢', value: 2 },
-            { word: '真正', value: 2 },
-            { word: '内附', value: 2 },
-            { word: '值得', value: 2 },
-            { word: '国补', value: 2 },
-            { word: '全攻略', value: 2 },
-            { word: '超全', value: 2 },
-            { word: '作业', value: 2 },
-            { word: '大学生', value: 2 },
-            { word: '淘汰', value: 1 },
-            { word: '碰上', value: 1 },
-            { word: 'pro', value: 1 },
-            { word: '幸福', value: 1 },
-            { word: '求拉', value: 1 },
-            { word: '浪费', value: 1 },
-            { word: '直接', value: 1 },
-            { word: '羊毛', value: 1 },
-            { word: '买齐', value: 1 },
-            { word: '东西', value: 1 },
-            { word: '统统', value: 1 },
-            { word: '重要', value: 1 },
-            { word: '购课', value: 1 },
-            { word: '公开', value: 1 },
-            { word: '自用', value: 1 },
-            { word: '时间段', value: 1 },
-            { word: '上岸', value: 1 },
-            { word: '空前', value: 1 },
-            { word: '家电', value: 1 },
-            { word: '规则', value: 1 },
-            { word: '不停', value: 1 },
-            { word: '店员', value: 1 },
-            { word: '极限', value: 1 },
-            { word: '三轮', value: 1 },
-            { word: '锐评', value: 1 },
-            { word: '至本', value: 1 },
-            { word: '狂欢节', value: 1 },
-            { word: '狂热', value: 1 },
-            { word: '来袭', value: 1 },
-            { word: '李佳琦', value: 1 },
-            { word: '维密', value: 1 },
-            { word: '睡衣', value: 1 },
-            { word: '左右', value: 1 },
-            { word: '必须', value: 1 },
-            { word: '购入', value: 1 },
-            { word: 'NB', value: 1 },
-            { word: '系列', value: 1 },
-            { word: '细说', value: 1 },
-            { word: '意义', value: 1 },
-            { word: '开启', value: 1 },
-            { word: '隐藏', value: 1 },
-            { word: '现在', value: 1 },
-            { word: '消息', value: 1 },
-            { word: '干货', value: 1 },
-            { word: '今晚', value: 1 },
-            { word: '时候', value: 1 },
-            { word: '解答', value: 1 },
-            { word: '五个', value: 1 },
-            { word: '问题', value: 1 },
-            { word: '看看', value: 1 },
-            { word: '今天', value: 1 },
-            { word: '极致', value: 1 },
-            { word: '已出', value: 1 },
-            { word: '荣耀', value: 1 },
-            { word: 'magic', value: 1 },
-            { word: '最低价', value: 1 },
-            { word: '真的', value: 1 },
-            { word: '有点', value: 1 },
-            { word: '超出', value: 1 },
-            { word: '预期', value: 1 },
-            { word: '完后', value: 1 },
-            { word: '购物车', value: 1 },
-            { word: '三波', value: 1 },
-            { word: '指南', value: 1 },
-            { word: '前面', value: 1 },
-            { word: '没买', value: 1 },
-            { word: '好价', value: 1 },
-            { word: '一定', value: 1 },
-            { word: '抓住', value: 1 },
-            { word: '已经', value: 1 },
-            { word: '一览表', value: 1 },
-            { word: '这篇', value: 1 },
-            { word: '告诉', value: 1 },
-            { word: '哪一天', value: 1 },
-            { word: '贫穷', value: 1 },
-            { word: '女大版', value: 1 },
-            { word: '适合', value: 1 },
-            { word: '最佳', value: 1 },
-            { word: '购机', value: 1 },
-            { word: '波看', value: 1 },
-            { word: '更大', value: 1 },
-            { word: '对比', value: 1 },
-            { word: '推荐', value: 1 },
-            { word: '终版', value: 1 },
-            { word: '还是', value: 1 },
-            { word: '哪些', value: 1 },
-            { word: '千万别', value: 1 },
-            { word: '分析', value: 1 },
-            { word: '高数', value: 1 },
-            { word: '大手笔', value: 1 },
-            { word: '天猫', value: 1 },
-            { word: '超市', value: 1 },
-            { word: '简单', value: 1 },
-            { word: '低价', value: 1 },
-            { word: '怎么', value: 1 },
-            { word: '买不贵', value: 1 },
-            { word: '我滴个', value: 1 },
-            { word: '节点', value: 1 },
-            { word: '真香', value: 1 },
-            { word: '研究生', value: 1 },
-            { word: '之买', value: 1 },
-            { word: '整理', value: 1 },
-            { word: '宝们', value: 1 },
-            { word: '看过', value: 1 },
-            { word: '猫爪', value: 1 },
-            { word: '最全', value: 1 },
-            { word: '版本', value: 1 },
-            { word: '技巧', value: 1 },
-            { word: '冷静', value: 1 },
-            { word: '那一波', value: 1 },
-            { word: '波茵曼', value: 1 },
-            { word: '服饰', value: 1 },
-            { word: '教程', value: 1 },
-            { word: '长期', value: 1 },
-            { word: '主义', value: 1 },
-            { word: '提个醒', value: 1 },
-            { word: '必买', value: 1 },
-            { word: '连夜', value: 1 },
-            { word: '方法', value: 1 },
-            { word: '尾款', value: 1 },
-            { word: '买好', value: 1 },
-            { word: '满意', value: 1 },
-            { word: '确实', value: 1 },
-            { word: '节奏', value: 1 },
-            { word: '三步', value: 1 },
-            { word: '省下', value: 1 },
-            { word: '百元', value: 1 },
-            { word: '几种', value: 1 },
-            { word: '不要', value: 1 },
-            { word: '等等', value: 1 },
-            { word: 'iphone', value: 1 },
-            { word: '超大', value: 1 },
-            { word: '大全', value: 1 },
-            { word: '利用', value: 1 },
-            { word: '赶紧', value: 1 },
-            { word: '需要', value: 1 }
-        ];
-
-        // 颜色映射
-        const sentimentColors = {
-            neutral: '#faad14',
-            negative: '#ff4d4f',
-            positive: '#52c41a'
-        };
-        
-        // 检查资源是否加载完成
-        function checkResourcesLoaded() {
-            return new Promise((resolve, reject) => {
-                let timeout = 10000; // 10秒超时
-                let checkInterval = 100; // 每100毫秒检查一次
-                
-                let checkCount = 0;
-                const maxChecks = timeout / checkInterval;
-                
-                const check = () => {
-                    checkCount++;
-                    
-                    // 检查关键资源是否加载完成
-                    if (window.Chart && window.d3 && window.WordCloud) {
-                        resolve();
-                        return;
-                    }
-                    
-                    if (checkCount >= maxChecks) {
-                        reject(new Error('资源加载超时'));
-                    } else {
-                        setTimeout(check, checkInterval);
-                    }
-                };
-                
-                check();
-            });
-        }
-        
-        // 初始化页面
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                // 等待资源加载完成
-                await checkResourcesLoaded();
-                
-                // 初始化导航
-                const navLinks = document.querySelectorAll('.nav-link');
-                const navTriggers = document.querySelectorAll('.nav-trigger');
-                
-                // 合并导航元素
-                const allNavElements = [...navLinks, ...navTriggers];
-                
-                allNavElements.forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        
-                        // 获取目标ID
-                        const targetId = link.getAttribute('href').substring(1);
-                        
-                        // 更新导航激活状态
-                        navLinks.forEach(l => l.classList.remove('nav-active'));
-                        navLinks.forEach(l => {
-                            if (l.getAttribute('href') === `#${targetId}`) {
-                                l.classList.add('nav-active');
-                            }
-                        });
-                        
-                        // 显示对应内容
-                        document.querySelectorAll('main > section').forEach(section => {
-                            section.classList.add('hidden');
-                        });
-                        
-                        const targetSection = document.getElementById(targetId);
-                        if (targetSection) {
-                            targetSection.classList.remove('hidden');
-                            
-                            // 如果是图表页面，初始化图表
-                            if (targetId === 'pie-chart') {
-                                initPieChart();
-                                renderSentimentStats();
-                            } else if (targetId === 'word-cloud') {
-                                initWordCloud();
-                                renderTopWords();
-                            }
-                        }
-                        
-                        // 平滑滚动到顶部
-                        window.scrollTo({
-                            top: 0,
-                            behavior: 'smooth'
-                        });
-                    });
-                });
-                
-                // 默认显示主页面
-                document.getElementById('home').classList.remove('hidden');
-                document.querySelector('a[href="#home"]').classList.add('nav-active');
-                
-            } catch (error) {
-                console.error('页面初始化失败:', error);
-                alert('页面加载失败，请刷新重试。错误信息: ' + error.message);
-            } finally {
-                // 隐藏加载指示器
-                setTimeout(() => {
-                    document.getElementById('loading-overlay').style.opacity = '0';
-                    setTimeout(() => {
-                        document.getElementById('loading-overlay').style.display = 'none';
-                    }, 300);
-                }, 500);
-            }
-        });
-        
         // 初始化饼图
-        function initPieChart() {
+        document.addEventListener('DOMContentLoaded', () => {
             try {
                 const ctx = document.getElementById('sentiment-chart').getContext('2d');
                 
-                // 提取数据
-                const values = pieChartData.map(item => item.value);
-                const labels = pieChartData.map(item => item.label);
-                const colors = pieChartData.map(item => sentimentColors[item.sentiment]);
+                // 数据
+                const data = {
+                    labels: ['中性', '消极', '积极'],
+                    datasets: [{
+                        data: [44.6, 27.2, 28.3],
+                        backgroundColor: [
+                            '#faad14',  // 中性
+                            '#ff4d4f',  // 消极
+                            '#52c41a'   // 积极
+                        ],
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        hoverOffset: 15
+                    }]
+                };
                 
                 // 创建图表
                 new Chart(ctx, {
                     type: 'pie',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: values,
-                            backgroundColor: colors,
-                            borderColor: '#ffffff',
-                            borderWidth: 2,
-                            hoverOffset: 15
-                        }]
-                    },
+                    data: data,
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
@@ -634,129 +245,7 @@
                     </div>
                 `;
             }
-        }
-        
-        // 渲染情感统计卡片
-        function renderSentimentStats() {
-            try {
-                const statsContainer = document.getElementById('sentiment-stats');
-                statsContainer.innerHTML = '';
-                
-                pieChartData.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = `flex items-center p-4 rounded-lg border-l-4 border-${item.sentiment}`;
-                    card.style.backgroundColor = `${sentimentColors[item.sentiment]}10`;
-                    
-                    card.innerHTML = `
-                        <div class="mr-4">
-                            <i class="fa ${getSentimentIcon(item.sentiment)} text-3xl" style="color: ${sentimentColors[item.sentiment]}"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-medium text-gray-800">${item.label}</h4>
-                            <p class="text-2xl font-bold text-gray-800">${item.value}%</p>
-                        </div>
-                    `;
-                    
-                    statsContainer.appendChild(card);
-                });
-            } catch (error) {
-                console.error('渲染情感统计失败:', error);
-            }
-        }
-        
-        // 根据情感类型获取图标
-        function getSentimentIcon(sentimentType) {
-            switch(sentimentType) {
-                case 'positive':
-                    return 'fa-smile-o';
-                case 'negative':
-                    return 'fa-frown-o';
-                case 'neutral':
-                    return 'fa-meh-o';
-                default:
-                    return 'fa-question';
-            }
-        }
-        
-        // 初始化词云图
-        function initWordCloud() {
-            try {
-                const container = document.getElementById('word-cloud-container');
-                const tooltip = document.getElementById('word-tooltip');
-                
-                // 清空容器
-                container.innerHTML = '';
-                
-                // 准备词云数据
-                const data = wordCloudData.map(item => [item.word, item.value]);
-                
-                // 生成随机颜色
-                const colors = d3.scaleOrdinal(d3.quantize(d3.interpolateHcl('#3b82f6', '#10b981'), 10));
-                
-                // 创建词云
-                WordCloud(container, {
-                    list: data,
-                    fontFamily: 'Inter, sans-serif',
-                    fontSizes: [12, 60],
-                    color: (word, weight, fontSize, distance, theta) => colors(word),
-                    backgroundColor: 'transparent',
-                    gridSize: 8,
-                    origin: null,
-                    drawOutOfBound: false,
-                    shrinkToFit: true,
-                    rotateRatio: 0.4,
-                    minRotation: -Math.PI / 2,
-                    maxRotation: Math.PI / 2,
-                    ellipticity: 0.65,
-                    
-                    // 悬停事件
-                    hover: (item, dimension, event) => {
-                        if (item) {
-                            const [word, value] = item;
-                            tooltip.innerHTML = `
-                                <div class="font-medium">${word}</div>
-                                <div class="text-gray-500">频次: ${value}</div>
-                            `;
-                            
-                            // 定位提示框
-                            tooltip.style.left = `${event.clientX + 10}px`;
-                            tooltip.style.top = `${event.clientY + 10}px`;
-                            tooltip.classList.remove('hidden');
-                        }
-                    },
-                    
-                    // 离开事件
-                    leave: () => {
-                        tooltip.classList.add('hidden');
-                    }
-                });
-            } catch (error) {
-                console.error('初始化词云失败:', error);
-                document.getElementById('word-cloud-container').innerHTML = `
-                    <div class="flex items-center justify-center h-full text-gray-500">
-                        <i class="fa fa-exclamation-triangle mr-2"></i> 词云加载失败，请刷新页面
-                    </div>
-                `;
-            }
-        }
-        
-        // 渲染热门词汇
-        function renderTopWords() {
-            try {
-                const topWordsContainer = document.getElementById('top-words');
-                topWordsContainer.innerHTML = '';
-                
-                // 按频次排序并取前10个
-                const topWords = [...wordCloudData].sort((a, b) => b.value - a.value).slice(0, 10);
-                
-                topWords.forEach((word, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'flex items-center justify-between';
-                    
-                    // 计算进度条宽度
-                    const maxValue = topWords[0].value;
-                    const width = (word.value / maxValue) * 100;
-                    
-                    item.innerHTML = `
-                        <div class="flex items-center">
-                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary text-white text-xs font-medium
+        });
+    </script>
+</body>
+</html>
