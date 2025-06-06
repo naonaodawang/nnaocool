@@ -118,34 +118,12 @@
                                 </div>
                                 <span class="ml-3 text-sm font-medium">13</span>
                             </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary text-white text-xs font-medium mr-3">4</span>
-                                    <span>时间</span>
-                                </div>
-                                <div class="w-3/5 bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-primary h-2.5 rounded-full" style="width: 33%"></div>
-                                </div>
-                                <span class="ml-3 text-sm font-medium">8</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary text-white text-xs font-medium mr-3">5</span>
-                                    <span>汇总</span>
-                                </div>
-                                <div class="w-3/5 bg-gray-200 rounded-full h-2.5">
-                                    <div class="bg-primary h-2.5 rounded-full" style="width: 25%"></div>
-                                </div>
-                                <span class="ml-3 text-sm font-medium">6</span>
-                            </div>
                         </div>
                     </div>
                     
                     <div class="bg-gray-50 rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4">分析摘要</h3>
-                        <p class="text-gray-600">从词云分析结果可以看出，"攻略"、"活动"、"时间"、"优惠"等词汇出现频率较高，说明消费者在大促期间最关注活动规则、时间安排以及优惠力度。此外，"京东"、"淘宝"等平台名称也较为突出，反映出消费者的主要购物平台。</p>
+                        <p class="text-gray-600">从词云分析结果可以看出，"攻略"、"活动"、"时间"、"优惠"等词汇出现频率较高，说明消费者在大促期间最关注活动规则、时间安排以及优惠力度。</p>
                     </div>
                     
                     <div class="bg-gray-50 rounded-lg p-6">
@@ -158,10 +136,6 @@
                             <li class="flex items-start">
                                 <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
                                 <span>悬停在词汇上可查看具体频次</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fa fa-circle text-xs text-primary mt-1.5 mr-2"></i>
-                                <span>数据来源：社交媒体平台公开讨论</span>
                             </li>
                         </ul>
                     </div>
@@ -196,7 +170,7 @@
     </footer>
 
     <script>
-        // 词云数据
+        // 简化版词云数据（减少词汇量）
         const wordCloudData = [
             { word: '攻略', value: 24 },
             { word: '第二', value: 20 },
@@ -395,26 +369,23 @@
                 // 清空容器
                 container.innerHTML = '';
                 
-                // 准备词云数据
-                const data = wordCloudData.map(item => [item.word, item.value]);
+                // 准备词云数据（减少词汇量以提高兼容性）
+                const filteredData = wordCloudData
+                    .filter((_, index) => index < 80) // 只保留前80个词
+                    .map(item => [item.word, item.value]);
                 
-                // 生成随机颜色
-                const colors = d3.scaleOrdinal(d3.quantize(d3.interpolateHcl('#3b82f6', '#10b981'), 10));
+                // 生成颜色
+                const colors = d3.scaleOrdinal(d3.schemeCategory10);
                 
-                // 创建词云
+                // 创建词云（简化配置）
                 WordCloud(container, {
-                    list: data,
-                    fontFamily: 'Inter, sans-serif',
-                    fontSizes: [12, 60],
-                    color: (word, weight, fontSize, distance, theta) => colors(word),
+                    list: filteredData,
+                    fontFamily: 'Arial, sans-serif', // 使用通用字体
+                    fontSizes: [14, 50], // 调整字体大小范围
+                    color: (word, weight) => colors(weight),
                     backgroundColor: 'transparent',
-                    gridSize: 8,
-                    origin: null,
-                    drawOutOfBound: false,
-                    shrinkToFit: true,
-                    rotateRatio: 0.4,
-                    minRotation: -Math.PI / 2,
-                    maxRotation: Math.PI / 2,
+                    gridSize: 10,
+                    rotateRatio: 0.3,
                     ellipticity: 0.65,
                     
                     // 悬停事件
@@ -436,23 +407,6 @@
                     // 离开事件
                     leave: () => {
                         tooltip.classList.add('hidden');
-                    },
-                    
-                    // 词云生成完成回调
-                    afterCloud: () => {
-                        // 词云生成成功后添加动画效果
-                        const words = container.querySelectorAll('text');
-                        words.forEach((word, index) => {
-                            word.style.opacity = '0';
-                            word.style.transform = 'translateY(20px)';
-                            word.style.transition = `opacity 0.5s ease ${index * 0.03}s, transform 0.5s ease ${index * 0.03}s`;
-                            
-                            // 触发动画
-                            setTimeout(() => {
-                                word.style.opacity = '1';
-                                word.style.transform = 'translateY(0)';
-                            }, 100);
-                        });
                     }
                 });
             } catch (error) {
