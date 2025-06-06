@@ -44,12 +44,29 @@
             .nav-active {
                 @apply text-primary border-b-2 border-primary;
             }
+            .loading-spinner {
+                border-top-color: #3b82f6;
+                animation: spinner 0.6s linear infinite;
+            }
+            @keyframes spinner {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
         }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+    <!-- 加载指示器 -->
+    <div id="loading-overlay" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="w-12 h-12 rounded-full border-4 border-gray-200 loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600">正在加载数据可视化...</p>
+        </div>
+    </div>
+
     <!-- 顶部导航 -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
+    <header class="bg-white shadow-sm sticky top-0 z-40">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2">
                 <i class="fa fa-bar-chart text-primary text-2xl"></i>
@@ -443,138 +460,197 @@
             positive: '#52c41a'
         };
         
-        // 初始化页面
-        document.addEventListener('DOMContentLoaded', () => {
-            // 初始化导航
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
+        // 检查资源是否加载完成
+        function checkResourcesLoaded() {
+            return new Promise((resolve, reject) => {
+                let timeout = 10000; // 10秒超时
+                let checkInterval = 100; // 每100毫秒检查一次
+                
+                let checkCount = 0;
+                const maxChecks = timeout / checkInterval;
+                
+                const check = () => {
+                    checkCount++;
                     
-                    // 更新导航激活状态
-                    navLinks.forEach(l => l.classList.remove('nav-active'));
-                    link.classList.add('nav-active');
-                    
-                    // 显示对应内容
-                    const targetId = link.getAttribute('href').substring(1);
-                    document.querySelectorAll('main > section').forEach(section => {
-                        section.classList.add('hidden');
-                    });
-                    
-                    const targetSection = document.getElementById(targetId);
-                    if (targetSection) {
-                        targetSection.classList.remove('hidden');
-                        
-                        // 如果是图表页面，初始化图表
-                        if (targetId === 'pie-chart') {
-                            initPieChart();
-                            renderSentimentStats();
-                        } else if (targetId === 'word-cloud') {
-                            initWordCloud();
-                            renderTopWords();
-                        }
+                    // 检查关键资源是否加载完成
+                    if (window.Chart && window.d3 && window.WordCloud) {
+                        resolve();
+                        return;
                     }
                     
-                    // 平滑滚动到顶部
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
+                    if (checkCount >= maxChecks) {
+                        reject(new Error('资源加载超时'));
+                    } else {
+                        setTimeout(check, checkInterval);
+                    }
+                };
+                
+                check();
+            });
+        }
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // 等待资源加载完成
+                await checkResourcesLoaded();
+                
+                // 初始化导航
+                const navLinks = document.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        
+                        // 更新导航激活状态
+                        navLinks.forEach(l => l.classList.remove('nav-active'));
+                        link.classList.add('nav-active');
+                        
+                        // 显示对应内容
+                        const targetId = link.getAttribute('href').substring(1);
+                        document.querySelectorAll('main > section').forEach(section => {
+                            section.classList.add('hidden');
+                        });
+                        
+                        const targetSection = document.getElementById(targetId);
+                        if (targetSection) {
+                            targetSection.classList.remove('hidden');
+                            
+                            // 如果是图表页面，初始化图表
+                            if (targetId === 'pie-chart') {
+                                initPieChart();
+                                renderSentimentStats();
+                            } else if (targetId === 'word-cloud') {
+                                initWordCloud();
+                                renderTopWords();
+                            }
+                        }
+                        
+                        // 平滑滚动到顶部
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
                     });
                 });
-            });
-            
-            // 默认显示主页面
-            document.getElementById('home').classList.remove('hidden');
-            document.querySelector('a[href="#home"]').classList.add('nav-active');
+                
+                // 默认显示主页面
+                document.getElementById('home').classList.remove('hidden');
+                document.querySelector('a[href="#home"]').classList.add('nav-active');
+                
+            } catch (error) {
+                console.error('页面初始化失败:', error);
+                alert('页面加载失败，请刷新重试。错误信息: ' + error.message);
+            } finally {
+                // 隐藏加载指示器
+                setTimeout(() => {
+                    document.getElementById('loading-overlay').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('loading-overlay').style.display = 'none';
+                    }, 300);
+                }, 500);
+            }
         });
         
         // 初始化饼图
         function initPieChart() {
-            const ctx = document.getElementById('sentiment-chart').getContext('2d');
-            
-            // 提取数据
-            const values = pieChartData.map(item => item.value);
-            const labels = pieChartData.map(item => item.label);
-            const colors = pieChartData.map(item => sentimentColors[item.sentiment]);
-            
-            // 创建图表
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: colors,
-                        borderColor: '#ffffff',
-                        borderWidth: 2,
-                        hoverOffset: 15
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                font: {
+            try {
+                const ctx = document.getElementById('sentiment-chart').getContext('2d');
+                
+                // 提取数据
+                const values = pieChartData.map(item => item.value);
+                const labels = pieChartData.map(item => item.label);
+                const colors = pieChartData.map(item => sentimentColors[item.sentiment]);
+                
+                // 创建图表
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: colors,
+                            borderColor: '#ffffff',
+                            borderWidth: 2,
+                            hoverOffset: 15
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    font: {
+                                        size: 14
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                titleFont: {
+                                    size: 16
+                                },
+                                bodyFont: {
                                     size: 14
+                                },
+                                padding: 12,
+                                cornerRadius: 8,
+                                displayColors: true,
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        return `${label}: ${value}%`;
+                                    }
                                 }
                             }
                         },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                            titleFont: {
-                                size: 16
-                            },
-                            bodyFont: {
-                                size: 14
-                            },
-                            padding: 12,
-                            cornerRadius: 8,
-                            displayColors: true,
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    return `${label}: ${value}%`;
-                                }
-                            }
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true,
+                            duration: 2000,
+                            easing: 'easeOutQuart'
                         }
-                    },
-                    animation: {
-                        animateScale: true,
-                        animateRotate: true,
-                        duration: 2000,
-                        easing: 'easeOutQuart'
                     }
-                }
-            });
+                });
+            } catch (error) {
+                console.error('初始化饼图失败:', error);
+                document.getElementById('sentiment-chart').parentElement.innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-500">
+                        <i class="fa fa-exclamation-triangle mr-2"></i> 图表加载失败，请刷新页面
+                    </div>
+                `;
+            }
         }
         
         // 渲染情感统计卡片
         function renderSentimentStats() {
-            const statsContainer = document.getElementById('sentiment-stats');
-            statsContainer.innerHTML = '';
-            
-            pieChartData.forEach(item => {
-                const card = document.createElement('div');
-                card.className = `flex items-center p-4 rounded-lg border-l-4 border-${item.sentiment}`;
-                card.style.backgroundColor = `${sentimentColors[item.sentiment]}10`;
+            try {
+                const statsContainer = document.getElementById('sentiment-stats');
+                statsContainer.innerHTML = '';
                 
-                card.innerHTML = `
-                    <div class="mr-4">
-                        <i class="fa ${getSentimentIcon(item.sentiment)} text-3xl" style="color: ${sentimentColors[item.sentiment]}"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-medium text-gray-800">${item.label}</h4>
-                        <p class="text-2xl font-bold text-gray-800">${item.value}%</p>
-                    </div>
-                `;
-                
-                statsContainer.appendChild(card);
-            });
+                pieChartData.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = `flex items-center p-4 rounded-lg border-l-4 border-${item.sentiment}`;
+                    card.style.backgroundColor = `${sentimentColors[item.sentiment]}10`;
+                    
+                    card.innerHTML = `
+                        <div class="mr-4">
+                            <i class="fa ${getSentimentIcon(item.sentiment)} text-3xl" style="color: ${sentimentColors[item.sentiment]}"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800">${item.label}</h4>
+                            <p class="text-2xl font-bold text-gray-800">${item.value}%</p>
+                        </div>
+                    `;
+                    
+                    statsContainer.appendChild(card);
+                });
+            } catch (error) {
+                console.error('渲染情感统计失败:', error);
+            }
         }
         
         // 根据情感类型获取图标
@@ -593,88 +669,101 @@
         
         // 初始化词云图
         function initWordCloud() {
-            const container = document.getElementById('word-cloud-container');
-            const tooltip = document.getElementById('word-tooltip');
-            
-            // 清空容器
-            container.innerHTML = '';
-            
-            // 准备词云数据
-            const data = wordCloudData.map(item => [item.word, item.value]);
-            
-            // 生成随机颜色
-            const colors = d3.scaleOrdinal(d3.quantize(d3.interpolateHcl('#3b82f6', '#10b981'), 10));
-            
-            // 创建词云
-            WordCloud(container, {
-                list: data,
-                fontFamily: 'Inter, sans-serif',
-                fontSizes: [12, 60],
-                color: (word, weight, fontSize, distance, theta) => colors(word),
-                backgroundColor: 'transparent',
-                gridSize: 8,
-                origin: null,
-                drawOutOfBound: false,
-                shrinkToFit: true,
-                rotateRatio: 0.4,
-                minRotation: -Math.PI / 2,
-                maxRotation: Math.PI / 2,
-                ellipticity: 0.65,
+            try {
+                const container = document.getElementById('word-cloud-container');
+                const tooltip = document.getElementById('word-tooltip');
                 
-                // 悬停事件
-                hover: (item, dimension, event) => {
-                    if (item) {
-                        const [word, value] = item;
-                        tooltip.innerHTML = `
-                            <div class="font-medium">${word}</div>
-                            <div class="text-gray-500">频次: ${value}</div>
-                        `;
-                        
-                        // 定位提示框
-                        tooltip.style.left = `${event.clientX + 10}px`;
-                        tooltip.style.top = `${event.clientY + 10}px`;
-                        tooltip.classList.remove('hidden');
+                // 清空容器
+                container.innerHTML = '';
+                
+                // 准备词云数据
+                const data = wordCloudData.map(item => [item.word, item.value]);
+                
+                // 生成随机颜色
+                const colors = d3.scaleOrdinal(d3.quantize(d3.interpolateHcl('#3b82f6', '#10b981'), 10));
+                
+                // 创建词云
+                WordCloud(container, {
+                    list: data,
+                    fontFamily: 'Inter, sans-serif',
+                    fontSizes: [12, 60],
+                    color: (word, weight, fontSize, distance, theta) => colors(word),
+                    backgroundColor: 'transparent',
+                    gridSize: 8,
+                    origin: null,
+                    drawOutOfBound: false,
+                    shrinkToFit: true,
+                    rotateRatio: 0.4,
+                    minRotation: -Math.PI / 2,
+                    maxRotation: Math.PI / 2,
+                    ellipticity: 0.65,
+                    
+                    // 悬停事件
+                    hover: (item, dimension, event) => {
+                        if (item) {
+                            const [word, value] = item;
+                            tooltip.innerHTML = `
+                                <div class="font-medium">${word}</div>
+                                <div class="text-gray-500">频次: ${value}</div>
+                            `;
+                            
+                            // 定位提示框
+                            tooltip.style.left = `${event.clientX + 10}px`;
+                            tooltip.style.top = `${event.clientY + 10}px`;
+                            tooltip.classList.remove('hidden');
+                        }
+                    },
+                    
+                    // 离开事件
+                    leave: () => {
+                        tooltip.classList.add('hidden');
                     }
-                },
-                
-                // 离开事件
-                leave: () => {
-                    tooltip.classList.add('hidden');
-                }
-            });
+                });
+            } catch (error) {
+                console.error('初始化词云失败:', error);
+                document.getElementById('word-cloud-container').innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-500">
+                        <i class="fa fa-exclamation-triangle mr-2"></i> 词云加载失败，请刷新页面
+                    </div>
+                `;
+            }
         }
         
         // 渲染热门词汇
         function renderTopWords() {
-            const topWordsContainer = document.getElementById('top-words');
-            topWordsContainer.innerHTML = '';
-            
-            // 按频次排序并取前10个
-            const topWords = [...wordCloudData].sort((a, b) => b.value - a.value).slice(0, 10);
-            
-            topWords.forEach((word, index) => {
-                const item = document.createElement('div');
-                item.className = 'flex items-center justify-between';
+            try {
+                const topWordsContainer = document.getElementById('top-words');
+                topWordsContainer.innerHTML = '';
                 
-                // 计算进度条宽度
-                const maxValue = topWords[0].value;
-                const width = (word.value / maxValue) * 100;
+                // 按频次排序并取前10个
+                const topWords = [...wordCloudData].sort((a, b) => b.value - a.value).slice(0, 10);
                 
-                item.innerHTML = `
-                    <div class="flex items-center">
-                        <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary text-white text-xs font-medium mr-3">${index + 1}</span>
-                        <span class="text-gray-800">${word.word}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
-                            <div class="bg-primary h-2 rounded-full" style="width: ${width}%"></div>
+                topWords.forEach((word, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'flex items-center justify-between';
+                    
+                    // 计算进度条宽度
+                    const maxValue = topWords[0].value;
+                    const width = (word.value / maxValue) * 100;
+                    
+                    item.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary text-white text-xs font-medium mr-3">${index + 1}</span>
+                            <span class="text-gray-800">${word.word}</span>
                         </div>
-                        <span class="text-gray-600 text-sm">${word.value}</span>
-                    </div>
-                `;
-                
-                topWordsContainer.appendChild(item);
-            });
+                        <div class="flex items-center">
+                            <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-primary h-2 rounded-full" style="width: ${width}%"></div>
+                            </div>
+                            <span class="text-gray-600 text-sm">${word.value}</span>
+                        </div>
+                    `;
+                    
+                    topWordsContainer.appendChild(item);
+                });
+            } catch (error) {
+                console.error('渲染热门词汇失败:', error);
+            }
         }
     </script>
 </body>
